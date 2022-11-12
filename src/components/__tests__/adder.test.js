@@ -1,7 +1,7 @@
 import {describe, it} from 'node:test';
 import assert from 'assert/strict'
 import {TestScheduler} from 'rxjs/testing';
-import {add} from '../add.js'
+import {adder} from '../adder.js'
 
 const createTestSchedule = () => new TestScheduler((actual, expected) => {
     console.log('createTestSchedule', actual, expected)
@@ -14,7 +14,7 @@ const valuesMap = {
 }
 const roadMap = Object.entries(valuesMap).reduce((acc, [value, key]) => ({...acc, [key]: +value}), {});
 
-describe('components:base:add', () => {
+describe('components:base:adder', () => {
     [
         [[undefined, undefined, undefined], [0, 0]],
         [[undefined, undefined, 0], [0, 0]],
@@ -51,7 +51,7 @@ describe('components:base:add', () => {
                 const sourceA = Number.isInteger(inputA) ? hot(valuesMap[inputA], roadMap) : undefined;
                 const sourceB = Number.isInteger(inputB) ? hot(valuesMap[inputB], roadMap) : undefined;
                 const sourceC = Number.isInteger(inputC) ? hot(valuesMap[inputC], roadMap) : undefined;
-                const {h, l} = add(sourceA, sourceB, sourceC)
+                const {h, l} = adder(sourceA, sourceB, sourceC)
                 expectObservable(h).toBe(valuesMap[outputs[0]], roadMap);
                 expectObservable(l).toBe(valuesMap[outputs[1]], roadMap);
             });

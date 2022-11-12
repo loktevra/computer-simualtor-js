@@ -1,8 +1,8 @@
 import {describe, it} from 'node:test';
 import assert from 'assert/strict'
 import {TestScheduler} from 'rxjs/testing';
-import {combineLatest, map, distinctUntilChanged} from 'rxjs';
-import {multiBitAdd} from '../multiBitAdd.js'
+import {combineLatest, map} from 'rxjs';
+import {multiBitAdder} from '../multiBitAdder.js'
 
 const createTestSchedule = () => new TestScheduler((actual, expected) => {
     console.log('createTestSchedule', actual, expected)
@@ -47,7 +47,7 @@ for (let length = 2; length <= 5; length++) {
 }
 
 
-describe('components:base:multiBitAdd', () => {
+describe('components:base:multiBitAdder', () => {
     arr.forEach(([inputs, outputs]) => {
         const result = [...outputs].reverse().join('')
         it(`should show reslut ${
@@ -61,7 +61,7 @@ describe('components:base:multiBitAdd', () => {
         }`, () => {
             const testScheduler = createTestSchedule();
             testScheduler.run(({hot, expectObservable}) => {
-                const {c, s} = multiBitAdd({
+                const {c, s} = multiBitAdder({
                     a: inputsToArgs(inputs[0], hot),
                     b: inputsToArgs(inputs[1], hot),
                     c: getSource(inputs[2], hot),

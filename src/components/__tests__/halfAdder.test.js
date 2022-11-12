@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'assert/strict'
 import { TestScheduler } from 'rxjs/testing';
-import { halfAdd } from '../halfAdd.js'
+import { halfAdder } from '../halfAdder.js'
 
 const createTestSchedule = () => new TestScheduler((actual, expected) => {
     console.log('createTestSchedule', actual, expected)
@@ -14,7 +14,7 @@ const valuesMap = {
 }
 const roadMap = Object.entries(valuesMap).reduce((acc, [value, key]) => ({...acc, [key]: +value}), {});
 
-describe('components:base:halfAdd', () => {
+describe('components:base:halfAdder', () => {
     [
         [[undefined, undefined], [0, 0]],
         [[undefined, 0], [0, 0]],
@@ -32,7 +32,7 @@ describe('components:base:halfAdd', () => {
                 const [inputA, inputB] = ipnuts;
                 const sourceA = Number.isInteger(inputA) ? hot(valuesMap[inputA], roadMap) : undefined;
                 const sourceB = Number.isInteger(inputB) ? hot(valuesMap[inputB], roadMap) : undefined;
-                const {h, l} = halfAdd(sourceA, sourceB)
+                const {h, l} = halfAdder(sourceA, sourceB)
                 expectObservable(h).toBe(valuesMap[outputs[0]], roadMap);
                 expectObservable(l).toBe(valuesMap[outputs[1]], roadMap);
             });
