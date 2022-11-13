@@ -1,41 +1,21 @@
-import { describe, it } from 'node:test';
-import assert from 'assert/strict'
-import { TestScheduler } from 'rxjs/testing';
-import { relay } from '../relay.js'
+import test from 'node:test';
+import {createSignalTest} from './testUtils.js';
+import {relay} from '../relay.js'
 
-const createTestSchedule = () => new TestScheduler((actual, expected) => {
-    console.log('createTestSchedule', actual, expected)
-    assert.deepEqual(actual, expected)
-});
-
-const valuesMap = {
-    0: 'a',
-    1: 'b'
-}
-const roadMap = Object.entries(valuesMap).reduce((acc, [value, key]) => ({...acc, [key]: +value}), {});
-
-describe('components:base:relay', () => {
-    [
-        [[undefined, undefined], [0, 0]],
-        [[undefined, 0], [0, 0]],
-        [[0, undefined], [0, 0]],
-        [[0, 0], [0, 0]],
-        [[1, 0], [0, 0]],
-        [[1, undefined], [0, 0]],
-        [[0, 1], [0, 1]],
-        [[undefined, 1], [0, 1]],
-        [[1, 1], [1, 0]],
-    ].forEach(([ipnuts, outputs]) => {
-        it(`should show reslut [${outputs}] for [${ipnuts}]`, () => {
-            const testScheduler = createTestSchedule();
-            testScheduler.run(({hot, expectObservable}) => {
-                const [inputA, inputB] = ipnuts;
-                const sourceA = Number.isInteger(inputA) ? hot(valuesMap[inputA], roadMap) : undefined;
-                const sourceB = Number.isInteger(inputB) ? hot(valuesMap[inputB], roadMap) : undefined;
-                const {a, b} = relay(sourceA, sourceB)
-                expectObservable(a).toBe(valuesMap[outputs[0]], roadMap);
-                expectObservable(b).toBe(valuesMap[outputs[1]], roadMap);
-            });
+test('components:base:relay', async (t) => {
+    const testCases = [
+        [0, 0, 0, 0],
+        [0, 1, 0, 1],
+        [1, 0, 0, 0],
+        [1, 1, 1, 0],
+    ]
+    for (const [a, b, expectedA, expectedB] of testCases) {
+        await t.test(`should show reslut a:${expectedA} b:${expectedB} for ${a} and ${b}`, () => {
+            createSignalTest(({createSignal, checkSignal}) => {
+                const result = relay(createSignal(a), createSignal(b))
+                checkSignal(result.a).toBe(expectedA)
+                checkSignal(result.b).toBe(expectedB)
+            })
         });
-    });
+    }
 });

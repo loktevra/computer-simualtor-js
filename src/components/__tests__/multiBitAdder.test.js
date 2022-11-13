@@ -1,73 +1,75 @@
-import {describe, it} from 'node:test';
-import assert from 'assert/strict'
-import {TestScheduler} from 'rxjs/testing';
-import {combineLatest, map} from 'rxjs';
+import test from 'node:test';
+import {createSignalTest} from './testUtils.js';
 import {multiBitAdder} from '../multiBitAdder.js'
 
-const createTestSchedule = () => new TestScheduler((actual, expected) => {
-    console.log('createTestSchedule', actual, expected)
-    assert.deepEqual(actual, expected)
-});
-
-const valuesMap = {
-    0: 'a',
-    1: 'b'
-}
-const roadMap = Object.entries(valuesMap).reduce((acc, [value, key]) => ({...acc, [key]: +value}), {});
-
-const getSource = (input, hot) => Number.isInteger(input) ? hot(valuesMap[input], roadMap) : undefined;
-
-const inputsToArgs = (inputs, hot) => inputs.map((val) => {
-    if (Array.isArray(val)) {
-        return inputsToArgs(val, hot)
-    }
-
-    return getSource(val, hot)
-})
-
-const arr = [];
-
-for (let length = 2; length <= 5; length++) {
-    let i = 0
-    for (let a = 0; a < (2 ** length); a++) {
-        for (let b = 0; b < (2 ** length); b++) {
-            for (let c = 0;c < 2; c++) {
-                arr[i++] = [
-                    [
-                        a.toString(2).split('').reverse().map(Number),
-                        b.toString(2).split('').reverse().map(Number),
-                        c,
-                        length
-                    ],
-                    (a + b + c).toString(2).padStart(length + 1, '0').split('').reverse()
-                ];
-            }
-        }
-    }
-}
-
-
-describe('components:base:multiBitAdder', () => {
-    arr.forEach(([inputs, outputs]) => {
-        const result = [...outputs].reverse().join('')
-        it(`should show reslut ${
-            result
-        } for ${
-            inputs[0] ? [...inputs[0]].reverse().join('') : inputs[0]
-        } + ${
-            inputs[1] ? [...inputs[1]].reverse().join('') : inputs[1]
-        } + ${
-            inputs[2]
-        }`, () => {
-            const testScheduler = createTestSchedule();
-            testScheduler.run(({hot, expectObservable}) => {
-                const {c, s} = multiBitAdder({
-                    a: inputsToArgs(inputs[0], hot),
-                    b: inputsToArgs(inputs[1], hot),
-                    c: getSource(inputs[2], hot),
-                }, inputs[3])
-                expectObservable(combineLatest(...s, c).pipe(map(arr => arr.reverse().join('')))).toBe('a', {a: result});
-            });
+test('components:base:multiBitAdder', async (t) => {
+    const testCases = [
+        [[0n, 0n, 0n], 2, [0n, 0n]],
+        [[0n, 1n, 0n], 2, [1n, 0n]],
+        [[1n, 0n, 0n], 2, [1n, 0n]],
+        [[0n, 1n, 1n], 2, [2n, 0n]],
+        [[1n, 0n, 1n], 2, [2n, 0n]],
+        [[1n, 1n, 0n], 2, [2n, 0n]],
+        [[2n, 0n, 0n], 2, [2n, 0n]],
+        [[0n, 2n, 0n], 2, [2n, 0n]],
+        [[1n, 1n, 1n], 2, [3n, 0n]],
+        [[1n, 2n, 0n], 2, [3n, 0n]],
+        [[2n, 1n, 0n], 2, [3n, 0n]],
+        [[3n, 0n, 0n], 2, [3n, 0n]],
+        [[3n, 1n, 0n], 2, [0n, 1n]],
+        [[3n, 2n, 0n], 2, [1n, 1n]],
+        [[3n, 3n, 0n], 2, [2n, 1n]],
+        [[0n, 3n, 0n], 2, [3n, 0n]],
+        [[1n, 3n, 0n], 2, [0n, 1n]],
+        [[2n, 3n, 0n], 2, [1n, 1n]],
+        [[3n, 3n, 0n], 2, [2n, 1n]],
+        [[3n, 0n, 1n], 2, [0n, 1n]],
+        [[0n, 3n, 1n], 2, [0n, 1n]],
+        [[1n, 3n, 1n], 2, [1n, 1n]],
+        [[2n, 3n, 1n], 2, [2n, 1n]],
+        [[3n, 1n, 1n], 2, [1n, 1n]],
+        [[3n, 2n, 1n], 2, [2n, 1n]],
+        [[3n, 3n, 1n], 2, [3n, 1n]],
+        [[0n, 4n, 0n], 2, [0n, 0n]],
+        [[4n, 0n, 0n], 2, [0n, 0n]],
+        [[4n, 5n, 0n], 2, [1n, 0n]],
+        [[4n, 5n, 0n], 2, [1n, 0n]],
+        [[0n, 0n, 0n], 4, [0, 0]],
+        [[0n, 0n, 1n], 4, [1n, 0]],
+        [[7n, 7n, 0n], 4, [14n, 0]],
+        [[7n, 7n, 1n], 4, [15n, 0]],
+        [[15n, 0n, 0n], 4, [15n, 0]],
+        [[15n, 0n, 1n], 4, [0n, 1n]],
+        [[15n, 1n, 1n], 4, [1n, 1n]],
+        [[15n, 7n, 1n], 4, [7n, 1n]],
+        [[15n, 7n, 0n], 4, [6n, 1n]],
+        [[2n ** 4n - 1n, 2n ** 4n - 1n, 0n], 4, [2n ** 4n - 2n, 1n]],
+        [[2n ** 8n - 1n, 2n ** 8n - 1n, 0n], 8, [2n ** 8n - 2n, 1n]],
+        [[2n ** 16n - 1n, 2n ** 16n - 1n, 0n], 16, [2n ** 16n - 2n, 1n]],
+        [[2n ** 32n - 1n, 2n ** 32n - 1n, 0n], 32, [2n ** 32n - 2n, 1n]],
+        [[2n ** 64n - 1n, 2n ** 64n - 1n, 0n], 64, [2n ** 64n - 2n, 1n]],
+        [[2n ** 4n - 1n, 2n ** 4n - 1n, 1n], 4, [2n ** 4n - 1n, 1n]],
+        [[2n ** 8n - 1n, 2n ** 8n - 1n, 1n], 8, [2n ** 8n - 1n, 1n]],
+        [[2n ** 16n - 1n, 2n ** 16n - 1n, 1n], 16, [2n ** 16n - 1n, 1n]],
+        [[2n ** 32n - 1n, 2n ** 32n - 1n, 1n], 32, [2n ** 32n - 1n, 1n]],
+        [[2n ** 64n - 1n, 2n ** 64n - 1n, 1n], 64, [2n ** 64n - 1n, 1n]],
+        [[0n, 0n, 0n], 64, [0, 0]],
+        [[1n, 0n, 0n], 64, [1n, 0]],
+        [[1n, 1n, 0n], 64, [2n, 0]],
+        [[255n, 255n, 0n], 64, [510n, 0]],
+        [[255n, 255n, 1n], 64, [511n, 0]],
+    ]
+    for (const [[a, b, c], length, [expectedS, expectedC]] of testCases) {
+        await t.test(`should show reslut ${'' + expectedC + expectedS.toString(2)} for ${a.toString(2)} + ${b.toString(2)} + ${c.toString(2)}`, () => {
+            createSignalTest(({createSignal, createBusSignals, checkSignal, checkBusSignal}) => {
+                const result = multiBitAdder({
+                    a: createBusSignals(a),
+                    b: createBusSignals(b),
+                    c: createSignal(c),
+                }, length)
+                checkBusSignal(result.s).toBe(expectedS)
+                checkSignal(result.c).toBe(expectedC)
+            })
         });
-    });
+    }
 });

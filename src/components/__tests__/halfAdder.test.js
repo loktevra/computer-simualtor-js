@@ -1,41 +1,21 @@
-import { describe, it } from 'node:test';
-import assert from 'assert/strict'
-import { TestScheduler } from 'rxjs/testing';
-import { halfAdder } from '../halfAdder.js'
+import test from 'node:test';
+import {createSignalTest} from './testUtils.js';
+import {halfAdder} from '../halfAdder.js'
 
-const createTestSchedule = () => new TestScheduler((actual, expected) => {
-    console.log('createTestSchedule', actual, expected)
-    assert.deepEqual(actual, expected)
-});
-
-const valuesMap = {
-    0: 'a',
-    1: 'b'
-}
-const roadMap = Object.entries(valuesMap).reduce((acc, [value, key]) => ({...acc, [key]: +value}), {});
-
-describe('components:base:halfAdder', () => {
-    [
-        [[undefined, undefined], [0, 0]],
-        [[undefined, 0], [0, 0]],
-        [[0, undefined], [0, 0]],
+test('components:base:halfAdder', async (t) => {
+    const testCases = [
         [[0, 0], [0, 0]],
-        [[1, 0], [0, 1]],
-        [[1, undefined], [0, 1]],
         [[0, 1], [0, 1]],
-        [[undefined, 1], [0, 1]],
+        [[1, 0], [0, 1]],
         [[1, 1], [1, 0]],
-    ].forEach(([ipnuts, outputs]) => {
-        it(`should show reslut [h:${outputs[0]},l:${outputs[1]}] for [${ipnuts}]`, () => {
-            const testScheduler = createTestSchedule();
-            testScheduler.run(({hot, expectObservable}) => {
-                const [inputA, inputB] = ipnuts;
-                const sourceA = Number.isInteger(inputA) ? hot(valuesMap[inputA], roadMap) : undefined;
-                const sourceB = Number.isInteger(inputB) ? hot(valuesMap[inputB], roadMap) : undefined;
-                const {h, l} = halfAdder(sourceA, sourceB)
-                expectObservable(h).toBe(valuesMap[outputs[0]], roadMap);
-                expectObservable(l).toBe(valuesMap[outputs[1]], roadMap);
-            });
+    ]
+    for (const [[a, b], [expectedH, expectedL]] of testCases) {
+        await t.test(`should show reslut ${'' + expectedH + expectedL} for ${a + b}`, () => {
+            createSignalTest(({createSignal, checkSignal}) => {
+                const {h, l} = halfAdder(createSignal(a), createSignal(b))
+                checkSignal(h).toBe(expectedH)
+                checkSignal(l).toBe(expectedL)
+            })
         });
-    });
+    }
 });
