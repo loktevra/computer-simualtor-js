@@ -8,7 +8,7 @@ export function relay(a = ZERO, b = ZERO) {
                 return a ? b : 0;
             }
 
-            throw new Error('invalid props for logical AND');
+            throw new Error(`invalid props typeof a: ${typeof a} typeof b ${typeof b}`);
         }))
         .pipe(distinctUntilChanged());
     const outB = combineLatest(a, b)
@@ -17,7 +17,7 @@ export function relay(a = ZERO, b = ZERO) {
                 return a ? 0 : b;
             }
 
-            throw new Error('invalid props for logical AND');
+            throw new Error(`invalid props typeof a: ${typeof a} typeof b ${typeof b}`);
         }))
         .pipe(distinctUntilChanged());
 

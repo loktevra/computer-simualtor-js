@@ -5,3 +5,11 @@ export function zero() {
 }
 
 export const ZERO = zero();
+
+export function padZero(bus, length) {
+    if (bus.length >= length) {
+        return bus.slice(0, length);
+    }
+
+    return [...bus, ...(new Array(length - bus.length)).fill(ZERO)];
+}
