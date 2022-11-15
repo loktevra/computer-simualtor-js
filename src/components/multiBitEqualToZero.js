@@ -7,7 +7,7 @@ export function multiBitEqualToZero(a, length) {
 
     let result = not(a[0]);
 
-    for (let i = 1; i < a.length; i++) {
+    for (let i = 1; i < length; i++) {
         result = and(result, not(a[i]));
         
     }
