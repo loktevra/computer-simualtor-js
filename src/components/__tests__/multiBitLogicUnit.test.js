@@ -4,22 +4,25 @@ import {multiBitLogicUnit} from '../logicUnit.js'
 
 test('components:base:multiBitLogicUnit', async (t) => {
     const testCases = [
+        // AND
         [0, 0, 0, 0, 8, 0],
         [0, 2n ** 8n - 1n, 0, 0, 8, 0],
         [2n ** 8n - 1n, 0, 0, 0, 8, 0],
         [2n ** 8n - 1n, 2n ** 8n - 1n, 0, 0, 8, 2n ** 8n - 1n],
 
+        // OR
         [0, 0, 1, 0, 8, 0],
         [0, 2n ** 8n - 1n, 1, 0, 8, 2n ** 8n - 1n],
         [2n ** 8n - 1n, 0, 1, 0, 8, 2n ** 8n - 1n],
         [2n ** 8n - 1n, 2n ** 8n - 1n, 1, 0, 8, 2n ** 8n - 1n],
 
-
+        // XOR
         [0, 0, 0, 1, 8, 0],
         [0, 2n ** 8n - 1n, 0, 1, 8, 2n ** 8n - 1n],
         [2n ** 8n - 1n, 0, 0, 1, 8, 2n ** 8n - 1n],
         [2n ** 8n - 1n, 2n ** 8n - 1n, 0, 1, 8, 0],
 
+        // NOT X
         [0, 0, 1, 1, 8, 2n ** 8n - 1n],
         [0, 2n ** 8n - 1n, 1, 1, 8, 2n ** 8n - 1n],
         [2n ** 8n - 1n, 0, 1, 1, 8, 0],
