@@ -8,6 +8,9 @@ test('components:base:relay', async (t) => {
         [0, 1, 0, 1],
         [1, 0, 0, 0],
         [1, 1, 1, 0],
+        ['0-', '01', '0-', '01'],
+        ['01', '10', '0', '10'],
+        ['0011', '0101', '0--1', '010--'],
     ]
     for (const [a, b, expectedA, expectedB] of testCases) {
         await t.test(`should show reslut a:${expectedA} b:${expectedB} for ${a} and ${b}`, () => {

@@ -4,7 +4,7 @@ import {and} from './and.js';
 import {padZero} from './zero.js';
 
 export function selector(d0, d1, s) {
-    return  or(and(not(s), d0), and(s, d1))
+    return or(and(not(s), d0), and(s, d1))
 }
 
 export function multiBitSelector(d0, d1, s, length) {

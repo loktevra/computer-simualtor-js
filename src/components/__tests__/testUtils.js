@@ -4,15 +4,22 @@ import assert from 'assert/strict'
 
 export function createSignalTest(callback) {
     const createTestSchedule = () => new TestScheduler((actual, expected) => {
+        console.log(actual, expected);
         assert.deepEqual(actual, expected)
     });
     const testScheduler = createTestSchedule();
     testScheduler.run(({hot, expectObservable}) => {
-        const createSignal = (value) => hot('a', {a: Number(value)});
+        const createSignal = (value) => typeof value === 'string' && value.length > 1
+            ? hot(value.split('').map(char => ({'0': 'a', '1': 'b', '-': '-'})[char]).join(''), {a: 0, b: 1})
+            : hot('a', {a: Number(value)});
         const createBusSignals = (value) => value.toString(2).split('').reverse().map(createSignal);
         const checkSignal = (actualValue) => ({
             toBe: (expectedValue) => {
-                expectObservable(actualValue).toBe('a', {a:Number(expectedValue)})
+                if (typeof expectedValue === 'string' && expectedValue.length > 1) {
+                    expectObservable(actualValue).toBe(expectedValue.split('').map(char => ({'0': 'a', '1': 'b', '-': '-'})[char]).join(''), {a: 0, b: 1})
+                } else {
+                    expectObservable(actualValue).toBe('a', {a:Number(expectedValue)})
+                }
             }
         });
         const checkBusSignal = (actualValues) => ({

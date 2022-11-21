@@ -1,4 +1,5 @@
-import {combineLatest, map, distinctUntilChanged} from 'rxjs';
+import {combineLatest, map, distinctUntilChanged, interval} from 'rxjs';
+import {debounce} from 'rxjs/operators';
 import {ZERO} from './zero.js';
 
 export function relay(a = ZERO, b = ZERO) {
@@ -10,6 +11,7 @@ export function relay(a = ZERO, b = ZERO) {
 
             throw new Error(`invalid props typeof a: ${typeof a} typeof b ${typeof b}`);
         }))
+        .pipe(debounce(val => interval(0)))
         .pipe(distinctUntilChanged());
     const outB = combineLatest(a, b)
         .pipe(map(([a, b]) => {
@@ -19,6 +21,7 @@ export function relay(a = ZERO, b = ZERO) {
 
             throw new Error(`invalid props typeof a: ${typeof a} typeof b ${typeof b}`);
         }))
+        .pipe(debounce(val => interval(0)))
         .pipe(distinctUntilChanged());
 
     return {
