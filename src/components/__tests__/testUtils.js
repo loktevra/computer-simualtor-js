@@ -8,10 +8,10 @@ export function createSignalTest(callback) {
         assert.deepEqual(actual, expected)
     });
     const testScheduler = createTestSchedule();
-    testScheduler.run(({hot, expectObservable}) => {
+    testScheduler.run(({hot, cold, expectObservable}) => {
         const createSignal = (value) => typeof value === 'string' && value.length > 1
-            ? hot(value.split('').map(char => ({'0': 'a', '1': 'b', '-': '-'})[char]).join(''), {a: 0, b: 1})
-            : hot('a', {a: Number(value)});
+            ? cold(value.split('').map(char => ({'0': 'a', '1': 'b', '-': '-'})[char]).join(''), {a: 0, b: 1})
+            : cold('a', {a: Number(value)});
         const createBusSignals = (value) => value.toString(2).split('').reverse().map(createSignal);
         const checkSignal = (actualValue) => ({
             toBe: (expectedValue) => {

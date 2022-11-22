@@ -6,6 +6,10 @@ test('components:base:not', async (t) => {
     const testCases = [
         [0, 1],
         [1, 0],
+        ['00', '1-'],
+        ['01', '10'],
+        ['10', '01'],
+        ['11', '0-'],
     ]
     for (const [a, expected] of testCases) {
         await t.test(`should show reslut ${expected} for ${a} `, () => {
