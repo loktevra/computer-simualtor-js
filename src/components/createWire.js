@@ -1,22 +1,28 @@
-import {Observable, distinctUntilChanged} from 'rxjs';
+import {Observable, distinctUntilChanged, interval, share, Subject} from 'rxjs';
+import {debounce} from 'rxjs/operators';
 
 export function createWire() {
     let source;
-    let outSubscriber
-    const outSource = new Observable((subscriber) => {
-        outSubscriber = subscriber;
-        outSubscriber.next(0);
-    }).pipe(distinctUntilChanged());
+
+    let subscriber
+    let subject = new Observable((o) => {
+        subscriber = o;
+        subscriber.next(0);
+    });
+    subject = subject
+        .pipe(debounce(val => interval(0)))
+        .pipe(distinctUntilChanged())
+        .pipe(share());
 
     return {
         setSource(newSource) {
             if (!source) {
                 source = newSource;
-                source.subscribe(x => outSubscriber.next(x));
+                source.subscribe(x => subscriber.next(x));
             }
         },
         getSource() {
-            return outSource
+            return subject;
         }
     }
 }
